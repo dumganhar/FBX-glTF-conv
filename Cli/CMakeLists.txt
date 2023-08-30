@@ -8,7 +8,7 @@ include ("${CMAKE_CURRENT_LIST_DIR}/../Core/CMakeLists.txt")
 
 # LIB
 
-add_library (FBX-glTF-conv-lib STATIC "${CMAKE_CURRENT_LIST_DIR}/ReadCliArgs.cpp")
+add_library (FBX-glTF-conv-lib STATIC "${CMAKE_CURRENT_LIST_DIR}/ReadCliArgs.cpp" "${CMAKE_CURRENT_LIST_DIR}/Version.cpp")
 
 if(MSVC)
    set_target_properties(FBX-glTF-conv-lib PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
