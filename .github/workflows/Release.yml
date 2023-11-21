@@ -33,13 +33,14 @@ jobs:
           echo "Version: $version"
           echo "Tag Name: $tagName"
 
-          echo "::set-output name=version::$version"
-          echo "::set-output name=tag_name::$tagName"
-          echo "::set-output name=release_name::$releaseName"
+          echo "version::$version"  >> $GITHUB_OUTPUT
+          echo "tag_name::$tagName" >> $GITHUB_OUTPUT
+          echo "release_name::$releaseName" >> $GITHUB_OUTPUT
 
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
+        if: github.event_name == 'workflow_dispatch' 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -106,7 +107,9 @@ jobs:
           Write-Output "::set-output name=artifact_path::$artifactPath"
       - id: build
         name: Build
-        run: CI/build.sh -Version "${{ needs.get_release_info_job.outputs.version }}" -ArtifactPath "${{ steps.get_this_release_info.outputs.artifact_path }}"
+        run: |
+          brew install p7zip
+          CI/build.sh -Version "${{ needs.get_release_info_job.outputs.version }}" -ArtifactPath "${{ steps.get_this_release_info.outputs.artifact_path }}"
         shell: bash
       - id: upload-release-asset
         name: Upload Release Asset

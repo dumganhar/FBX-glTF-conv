@@ -242,7 +242,7 @@ build() {
     fi
     
     if [ -n "$ArtifactPath" ]; then
-        zip -r $ArtifactPath $cmakeInstallPrefix
+        7z a -tzip $ArtifactPath $cmakeInstallPrefix
     fi
 }
 
