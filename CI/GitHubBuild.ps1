@@ -1,9 +1,17 @@
 #Requires -Version "6.1"
 
 param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$false)]
     [string]
-    $ArtifactPath
+    $ArtifactPath,
+
+    [Parameter(Mandatory=$false)]
+    [switch]
+    $IncludeDebug = $False,
+
+    [Parameter(Mandatory=$false)]
+    [string]
+    $Version = ""
 )
 
 $is64BitOperatingSystem = [System.Environment]::Is64BitOperatingSystem
@@ -15,12 +23,9 @@ IsLinux: $IsLinux
 Is64BitOperatingSystem: $is64BitOperatingSystem
 Current working directory: $(Get-Location)
 ArtifactPath: $ArtifactPath
+IncludeDebug: $IncludeDebug
+Version: $Version
 "@
-
-# New-Item -ItemType Directory -Path "artifacts"
-# "Hello2!" | Out-File "artifacts/Hello.txt"
-# Compress-Archive -Path "artifacts/*" -DestinationPath $ArtifactPath
-# exit 0
 
 function InstallVcpkg {
     git clone https://github.com/microsoft/vcpkg | Out-Host
@@ -51,16 +56,16 @@ function GetTriplet {
 function InstallFbxSdk {
     New-Item -ItemType Directory -Path "fbxsdk" | Out-Null
     if ($IsWindows) {
-        $FBXSDK_2020_0_1_VS2017 = "https://damassets.autodesk.net/content/dam/autodesk/www/adn/fbx/2020-0-1/fbx202001_fbxsdk_vs2017_win.exe"
+        $fbxSdkUrl = "https://www.autodesk.com/content/dam/autodesk/www/adn/fbx/2020-2-1/fbx202021_fbxsdk_vs2019_win.exe"
         $FbxSdkWindowsInstaller = Join-Path "fbxsdk" "fbxsdk.exe"
-        (New-Object System.Net.WebClient).DownloadFile($FBXSDK_2020_0_1_VS2017, $FbxSdkWindowsInstaller)
+        (New-Object System.Net.WebClient).DownloadFile($fbxSdkUrl, $FbxSdkWindowsInstaller)
         $fbxSdkHome = [System.IO.Path]::Combine((Get-Location), "fbxsdk", "Home")
         Start-Process -Wait -FilePath $FbxSdkWindowsInstaller -ArgumentList "/S","/D=$fbxSdkHome"
     } elseif ($IsMacOS) {
-        $FBXSDK_2020_0_1_CLANG = "https://www.autodesk.com/content/dam/autodesk/www/adn/fbx/2020-0-1/fbx202001_fbxsdk_clang_mac.pkg.tgz"
-        $FBXSDK_2020_0_1_CLANG_VERSION = "2020.0.1"
+        $fbxSdkUrl = "https://www.autodesk.com/content/dam/autodesk/www/adn/fbx/2020-2-1/fbx202021_fbxsdk_clang_mac.pkg.tgz"
+        $fbxSdkVersion = "2020.2.1"
         $fbxSdkMacOSTarball = Join-Path "fbxsdk" "fbxsdk.pkg.tgz"
-        (New-Object System.Net.WebClient).DownloadFile($FBXSDK_2020_0_1_CLANG, $fbxSdkMacOSTarball)
+        (New-Object System.Net.WebClient).DownloadFile($fbxSdkUrl, $fbxSdkMacOSTarball)
         $fbxSdkMacOSPkgFileDir = "fbxsdk"
         & tar -zxvf $fbxSdkMacOSTarball -C $fbxSdkMacOSPkgFileDir | Out-Host
         $fbxSdkMacOSPkgFile = (Get-ChildItem -Path "$fbxSdkMacOSPkgFileDir/*" -Include "*.pkg").FullName
@@ -68,17 +73,17 @@ function InstallFbxSdk {
         sudo installer -pkg $fbxSdkMacOSPkgFile -target / | Out-Host
         $fbxSdkHome = [System.IO.Path]::Combine((Get-Location), "fbxsdk", "Home")
         # Node gyp incorrectly handle spaces in path
-        New-Item -ItemType SymbolicLink -Path "fbxsdk" -Name Home -Value "/Applications/Autodesk/FBX SDK/$FBXSDK_2020_0_1_CLANG_VERSION" | Out-Host
+        New-Item -ItemType SymbolicLink -Path "fbxsdk" -Name Home -Value "/Applications/Autodesk/FBX SDK/$fbxSdkVersion" | Out-Host
     } elseif ($IsLinux) {
-        $FBXSDK_2020_0_1_LINUX = "https://www.autodesk.com/content/dam/autodesk/www/adn/fbx/2020-0-1/fbx202001_fbxsdk_linux.tar.gz"
+        $fbxSdkUrl = "https://www.autodesk.com/content/dam/autodesk/www/adn/fbx/2020-2-1/fbx202021_fbxsdk_linux.tar.gz"
         $fbxSdkTarball = Join-Path "fbxsdk" "fbxsdk.tar.gz"
-        Write-Host "Downloading FBX SDK tar ball from $FBXSDK_2020_0_1_LINUX ..."
-        (New-Object System.Net.WebClient).DownloadFile($FBXSDK_2020_0_1_LINUX, $fbxSdkTarball)
+        Write-Host "Downloading FBX SDK tar ball from $fbxSdkUrl ..."
+        (New-Object System.Net.WebClient).DownloadFile($fbxSdkUrl, $fbxSdkTarball)
         $fbxSdkTarballExtractDir = Join-Path "fbxsdk" "tarbar_extract"
         New-Item -ItemType Directory -Path $fbxSdkTarballExtractDir | Out-Null
         Write-Host "Extracting to $fbxSdkTarballExtractDir ..."
         & tar -zxvf $fbxSdkTarball -C $fbxSdkTarballExtractDir | Out-Host
-        $fbxSdkInstallationProgram = Join-Path $fbxSdkTarballExtractDir "fbx202001_fbxsdk_linux"
+        $fbxSdkInstallationProgram = Join-Path $fbxSdkTarballExtractDir "fbx202021_fbxsdk_linux"
         chmod ugo+x $fbxSdkInstallationProgram
         
         $fbxSdkHomeLocation = [System.IO.Path]::Combine($HOME, "fbxsdk", "install")
@@ -115,7 +120,12 @@ InstallDependencies
 
 $cmakeInstallPrefix = "out/install"
 
-foreach ($cmakeBuildType in @("Debug", "Release")) {
+$cmakeBuildTypes = @("Release")
+if ($IncludeDebug) {
+    $cmakeBuildTypes += "Debug"
+}
+
+foreach ($cmakeBuildType in $cmakeBuildTypes) {
     Write-Host "Build $cmakeBuildType ..."
     $cmakeBuildDir = "out/build/$cmakeBuildType"
 
@@ -125,14 +135,31 @@ foreach ($cmakeBuildType in @("Debug", "Release")) {
         $polyfillsStdFileSystem = "ON"
     }
 
-    cmake `
-    -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" `
-    "-DCMAKE_BUILD_TYPE=$cmakeBuildType" `
-    -DCMAKE_INSTALL_PREFIX="$cmakeInstallPrefix/$cmakeBuildType" `
-    -DFbxSdkHome:STRING="$fbxSdkHome" `
-    "-DPOLYFILLS_STD_FILESYSTEM=$polyfillsStdFileSystem" `
-    "-S." `
-    "-B$cmakeBuildDir"
+    $defineVersion = if ($Version) { "-DFBX_GLTF_CONV_CLI_VERSION=$Version" } else { "" }
+
+    if ($IsMacOS) {
+        cmake `
+        -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" `
+        -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" `
+        "-DCMAKE_BUILD_TYPE=$cmakeBuildType" `
+        -DCMAKE_INSTALL_PREFIX="$cmakeInstallPrefix/$cmakeBuildType" `
+        -DFbxSdkHome:STRING="$fbxSdkHome" `
+        "-DPOLYFILLS_STD_FILESYSTEM=$polyfillsStdFileSystem" `
+        "$defineVersion" `
+        "-S." `
+        "-B$cmakeBuildDir"
+    }
+    else {
+        cmake `
+        -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" `
+        "-DCMAKE_BUILD_TYPE=$cmakeBuildType" `
+        -DCMAKE_INSTALL_PREFIX="$cmakeInstallPrefix/$cmakeBuildType" `
+        -DFbxSdkHome:STRING="$fbxSdkHome" `
+        "-DPOLYFILLS_STD_FILESYSTEM=$polyfillsStdFileSystem" `
+        "$defineVersion" `
+        "-S." `
+        "-B$cmakeBuildDir"
+    }
 
     # The build type really matters:
     # https://stackoverflow.com/questions/24460486/cmake-build-type-is-not-being-used-in-cmakelists-txt
@@ -150,4 +177,6 @@ if (((Test-Path $cmakeInstallPrefix) -eq $false) -or ((Get-Item $cmakeInstallPre
     exit -1
 }
 
-Compress-Archive -Path "$cmakeInstallPrefix\*" -DestinationPath $ArtifactPath
+if ($ArtifactPath) {
+    Compress-Archive -Path "$cmakeInstallPrefix\*" -DestinationPath $ArtifactPath
+}
