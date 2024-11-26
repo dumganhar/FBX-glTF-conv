@@ -143,7 +143,7 @@ endif()
 install (FILES ${FbxSdkDynLibraries} DESTINATION "bin")
 
 # Testing
-if (NOT APPLE) # FIXME: iconv is not found on GitHub macOS release flow
+# if (NOT APPLE) # FIXME: iconv is not found on GitHub macOS release flow
     file (GLOB_RECURSE BeeCoreTestSource
         "${CMAKE_CURRENT_LIST_DIR}/Test/*.cpp"
     )
@@ -164,4 +164,4 @@ if (NOT APPLE) # FIXME: iconv is not found on GitHub macOS release flow
         message("CoreFoundation Framework: ${CF_FRAMEWORK}")
         target_link_libraries(FBX-glTF-conv-core-test PRIVATE ${CF_FRAMEWORK})
     endif()
-endif()
+# endif()

@@ -173,9 +173,6 @@ CHECK_EQ(u8toexe(args->convertOptions.textureResolution.locations[0]), "/a"s);
   CHECK_EQ(read_cli_args_with_dummy_and("--match-mesh-names"sv)
  			  ->convertOptions.match_mesh_names,
      		  true);
-  CHECK_EQ(read_cli_args_with_dummy_and("--match-mesh-names"sv)
-               ->convertOptions.match_mesh_names,
-               false);
 }
 
 { // Animation Bake Rate

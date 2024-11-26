@@ -48,6 +48,10 @@ jobs:
           # echo "otool bin/FBX-glTF-conv ..."
           # otool -l out/install/Release/bin/FBX-glTF-conv | grep -A 5 LC_VERSION_MIN_MACOSX
 
+      - name: Run Core Test
+        run: |
+          out/install/Release/bin/FBX-glTF-conv-core-test
+
       - name: Run CLI Tests
         continue-on-error: true
         run: |
