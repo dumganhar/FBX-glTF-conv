@@ -50,7 +50,7 @@ jobs:
 
       - name: Run Core Test
         run: |
-          out/install/Release/bin/FBX-glTF-conv-core-test
+          out/build/Release/FBX-glTF-conv-core-test
 
       - name: Run CLI Tests
         continue-on-error: true
