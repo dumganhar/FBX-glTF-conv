@@ -41,6 +41,9 @@ target_link_libraries(BeeCore PRIVATE fmt::fmt fmt::fmt-header-only)
 add_executable (FBX-glTF-conv "${CMAKE_CURRENT_LIST_DIR}/Cli.cpp")
 
 set_target_properties (FBX-glTF-conv PROPERTIES CXX_STANDARD 20)
+if(MSVC)
+    target_compile_options(FBX-glTF-conv PRIVATE /utf-8)
+endif()
 
 target_link_libraries(FBX-glTF-conv PRIVATE FBX-glTF-conv-lib)
 
