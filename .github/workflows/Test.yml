@@ -41,8 +41,6 @@ jobs:
           lipo -info out/install/Release/lib/libBeeCore.dylib
           lipo -info out/install/Release/bin/FBX-glTF-conv
 
-          echo "otool libfbxsdk.dylib ..."
-          otool -l out/install/Release/bin/libfbxsdk.dylib | grep -A 5 LC_VERSION_MIN_MACOSX
           echo "otool bin/libBeeCore.dylib ..."
           otool -l out/install/Release/bin/libBeeCore.dylib | grep -A 5 LC_VERSION_MIN_MACOSX
           echo "otool lib/libBeeCore.dylib ..."
