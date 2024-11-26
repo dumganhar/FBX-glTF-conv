@@ -36,9 +36,18 @@ jobs:
           CI/build.sh
           ls -l out/install/Release/bin
           ls -l out/install/Release/lib
-          find out/install/Release -name "*.dylib" | xargs lipo -info
-          find out/install/Release -name "*.dylib" | xargs otool -l | grep -A 5 LC_VERSION_MIN_MACOSX
+          lipo -info out/install/Release/bin/libfbxsdk.dylib
+          lipo -info out/install/Release/bin/libBeeCore.dylib
+          lipo -info out/install/Release/lib/libBeeCore.dylib
           lipo -info out/install/Release/bin/FBX-glTF-conv
+
+          echo "otool libfbxsdk.dylib ..."
+          otool -l out/install/Release/bin/libfbxsdk.dylib | grep -A 5 LC_VERSION_MIN_MACOSX
+          echo "otool bin/libBeeCore.dylib ..."
+          otool -l out/install/Release/bin/libBeeCore.dylib | grep -A 5 LC_VERSION_MIN_MACOSX
+          echo "otool lib/libBeeCore.dylib ..."
+          otool -l out/install/Release/lib/libBeeCore.dylib | grep -A 5 LC_VERSION_MIN_MACOSX
+          echo "otool bin/FBX-glTF-conv ..."
           otool -l out/install/Release/bin/FBX-glTF-conv | grep -A 5 LC_VERSION_MIN_MACOSX
 
       - name: Run CLI Tests
