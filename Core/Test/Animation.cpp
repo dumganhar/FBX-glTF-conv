@@ -17,8 +17,8 @@ template <> struct TrackValueTrait<double> {
 
 using DoubleKeyframe = std::pair<double, double>;
 
-template <template <typename Ty> class Vec = std::initializer_list>
-auto reduceLinearKeys(const Vec<DoubleKeyframe> &keys_,
+template <typename Vec = std::initializer_list<DoubleKeyframe>>
+auto reduceLinearKeys(const Vec &keys_,
                       double epsilon_ = bee::defaultEplislon) {
   bee::Track<double> track;
   for (const auto [k, v] : keys_) {
@@ -147,7 +147,7 @@ TEST_CASE("Linear Key Reduction/Successive linear keys") {
 
   SUBCASE("At begin") {
     const auto r =
-        reduceLinearKeys<std::vector>(concatVecs(successiveObservee, nextKeys));
+        reduceLinearKeys(concatVecs(successiveObservee, nextKeys));
     CHECK_EQ(r,
              concatVecs(std::vector<DoubleKeyframe>{successiveObservee.front(),
                                                     successiveObservee.back()},
@@ -156,14 +156,14 @@ TEST_CASE("Linear Key Reduction/Successive linear keys") {
 
   SUBCASE("At end") {
     const auto r =
-        reduceLinearKeys<std::vector>(concatVecs(prevKeys, successiveObservee));
+        reduceLinearKeys(concatVecs(prevKeys, successiveObservee));
     CHECK_EQ(r, concatVecs(prevKeys, std::vector<DoubleKeyframe>{
                                          successiveObservee.front(),
                                          successiveObservee.back()}));
   }
 
   SUBCASE("At middle") {
-    const auto r = reduceLinearKeys<std::vector>(
+    const auto r = reduceLinearKeys(
         concatVecs(prevKeys, successiveObservee, nextKeys));
     CHECK_EQ(r,
              concatVecs(prevKeys,
@@ -173,7 +173,7 @@ TEST_CASE("Linear Key Reduction/Successive linear keys") {
   }
 
   SUBCASE("All keyframes are the same") {
-    const auto r = reduceLinearKeys<std::vector>(successiveObservee);
+    const auto r = reduceLinearKeys(successiveObservee);
     CHECK_EQ(r, std::vector<DoubleKeyframe>{successiveObservee.front(),
                                             successiveObservee.back()});
   }
@@ -190,7 +190,7 @@ TEST_CASE("Linear Key Reduction/Successive same keys") {
 
   SUBCASE("At begin") {
     const auto r =
-        reduceLinearKeys<std::vector>(concatVecs(successiveObservee, nextKeys));
+        reduceLinearKeys(concatVecs(successiveObservee, nextKeys));
     CHECK_EQ(r,
              concatVecs(std::vector<DoubleKeyframe>{successiveObservee.back()},
                         nextKeys));
@@ -198,13 +198,13 @@ TEST_CASE("Linear Key Reduction/Successive same keys") {
 
   SUBCASE("At end") {
     const auto r =
-        reduceLinearKeys<std::vector>(concatVecs(prevKeys, successiveObservee));
+        reduceLinearKeys(concatVecs(prevKeys, successiveObservee));
     CHECK_EQ(r, concatVecs(prevKeys, std::vector<DoubleKeyframe>{
                                          successiveObservee.front()}));
   }
 
   SUBCASE("At middle") {
-    const auto r = reduceLinearKeys<std::vector>(
+    const auto r = reduceLinearKeys(
         concatVecs(prevKeys, successiveObservee, nextKeys));
     CHECK_EQ(r,
              concatVecs(prevKeys,
@@ -214,7 +214,7 @@ TEST_CASE("Linear Key Reduction/Successive same keys") {
   }
 
   SUBCASE("All keyframes are the same") {
-    const auto r = reduceLinearKeys<std::vector>(successiveObservee);
+    const auto r = reduceLinearKeys(successiveObservee);
     CHECK_EQ(r, std::vector<DoubleKeyframe>{successiveObservee.back()});
   }
 }
@@ -232,24 +232,24 @@ TEST_CASE("Linear Key Reduction/Successive same times but different values") {
 
   SUBCASE("At begin") {
     const auto r =
-        reduceLinearKeys<std::vector>(concatVecs(successiveObservee, nextKeys));
+        reduceLinearKeys(concatVecs(successiveObservee, nextKeys));
     CHECK_EQ(r, concatVecs(successiveObservee, nextKeys));
   }
 
   SUBCASE("At end") {
     const auto r =
-        reduceLinearKeys<std::vector>(concatVecs(prevKeys, successiveObservee));
+        reduceLinearKeys(concatVecs(prevKeys, successiveObservee));
     CHECK_EQ(r, concatVecs(prevKeys, successiveObservee));
   }
 
   SUBCASE("At middle") {
-    const auto r = reduceLinearKeys<std::vector>(
+    const auto r = reduceLinearKeys(
         concatVecs(prevKeys, successiveObservee, nextKeys));
     CHECK_EQ(r, concatVecs(prevKeys, successiveObservee, nextKeys));
   }
 
   SUBCASE("All keyframes are the same") {
-    const auto r = reduceLinearKeys<std::vector>(successiveObservee);
+    const auto r = reduceLinearKeys(successiveObservee);
     CHECK_EQ(r, successiveObservee);
   }
 }
@@ -265,7 +265,7 @@ TEST_CASE("Linear Key Reduction/Successive same times and same values") {
 
   SUBCASE("At begin") {
     const auto r =
-        reduceLinearKeys<std::vector>(concatVecs(successiveObservee, nextKeys));
+        reduceLinearKeys(concatVecs(successiveObservee, nextKeys));
     CHECK_EQ(r,
              concatVecs(std::vector<DoubleKeyframe>{successiveObservee.back()},
                         nextKeys));
@@ -273,13 +273,13 @@ TEST_CASE("Linear Key Reduction/Successive same times and same values") {
 
   SUBCASE("At end") {
     const auto r =
-        reduceLinearKeys<std::vector>(concatVecs(prevKeys, successiveObservee));
+        reduceLinearKeys(concatVecs(prevKeys, successiveObservee));
     CHECK_EQ(r, concatVecs(prevKeys, std::vector<DoubleKeyframe>{
                                          successiveObservee.back()}));
   }
 
   SUBCASE("At middle") {
-    const auto r = reduceLinearKeys<std::vector>(
+    const auto r = reduceLinearKeys(
         concatVecs(prevKeys, successiveObservee, nextKeys));
     CHECK_EQ(r,
              concatVecs(prevKeys,
@@ -288,7 +288,7 @@ TEST_CASE("Linear Key Reduction/Successive same times and same values") {
   }
 
   SUBCASE("All keyframes are the same") {
-    const auto r = reduceLinearKeys<std::vector>(successiveObservee);
+    const auto r = reduceLinearKeys(successiveObservee);
     CHECK_EQ(r, std::vector<DoubleKeyframe>{successiveObservee.back()});
   }
 }
