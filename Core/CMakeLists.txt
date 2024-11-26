@@ -31,7 +31,7 @@ set (BeeCoreSource
     "${CMAKE_CURRENT_LIST_DIR}/Source/bee/Convert/fbxsdk/String.cpp"
     )
 
-add_library (BeeCore SHARED ${BeeCoreSource})
+add_library (BeeCore STATIC ${BeeCoreSource})
 
 set_target_properties (BeeCore PROPERTIES CXX_STANDARD 20)
 
