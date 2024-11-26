@@ -209,7 +209,7 @@ runCMake() {
             -DCMAKE_INSTALL_PREFIX="${cmakeInstallPrefix}/${buildType}" \
             -DFbxSdkHome:STRING="${fbxSdkHome}" \
             -DPOLYFILLS_STD_FILESYSTEM="${polyfillsStdFileSystem}" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.12 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
             "${defineVersion}" \
             -S. -B"${cmakeBuildDir}"
     else
