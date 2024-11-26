@@ -34,13 +34,15 @@ jobs:
       - name: Build
         run: |
           CI/build.sh
-          ls -l out/Release/bin
-          ls -l out/Release/lib
-          find out/Release -name "*.dylib" | xargs lipo -info
-          lipo -info out/Release/bin/FBX-glTF-conv
+          ls -l out/install/Release/bin
+          ls -l out/install/Release/lib
+          find out/install/Release -name "*.dylib" | xargs lipo -info
+          find out/install/Release -name "*.dylib" | xargs otool -l | grep -A 5 LC_VERSION_MIN_MACOSX
+          lipo -info out/install/Release/bin/FBX-glTF-conv
+          otool -l out/install/Release/bin/FBX-glTF-conv | grep -A 5 LC_VERSION_MIN_MACOSX
 
       - name: Run CLI Tests
         run: |
           ls out
-          chmod 777 ./out/Release/bin/FBX-glTF-conv
-          ./out/Release/bin/FBX-glTF-conv --help
+          chmod 777 ./out/install/Release/bin/FBX-glTF-conv
+          ./out/install/Release/bin/FBX-glTF-conv --help
