@@ -22,6 +22,10 @@ if (POLYFILLS_STD_FILESYSTEM)
     target_compile_definitions (FBX-glTF-conv-lib PUBLIC BEE_POLYFILLS_STD_FILESYSTEM)
 endif ()
 
+if(MSVC)
+    target_compile_options(FBX-glTF-conv-lib PRIVATE /utf-8)
+endif()
+
 target_link_libraries (FBX-glTF-conv-lib PUBLIC BeeCore)
 
 find_package(cxxopts CONFIG REQUIRED)
@@ -41,9 +45,6 @@ target_link_libraries(BeeCore PRIVATE fmt::fmt fmt::fmt-header-only)
 add_executable (FBX-glTF-conv "${CMAKE_CURRENT_LIST_DIR}/Cli.cpp")
 
 set_target_properties (FBX-glTF-conv PROPERTIES CXX_STANDARD 20)
-if(MSVC)
-    target_compile_options(FBX-glTF-conv PRIVATE /utf-8)
-endif()
 
 target_link_libraries(FBX-glTF-conv PRIVATE FBX-glTF-conv-lib)
 
