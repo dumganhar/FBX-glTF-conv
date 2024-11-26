@@ -35,7 +35,8 @@ add_library (BeeCore SHARED ${BeeCoreSource})
 
 set_target_properties (BeeCore PROPERTIES CXX_STANDARD 20)
 
-target_compile_definitions (BeeCore PRIVATE BEE_EXPORT FBXSDK_SHARED NOMINMAX HAVE_SNPRINTF)
+target_compile_definitions (BeeCore PRIVATE BEE_EXPORT FBXSDK_SHARED NOMINMAX HAVE_SNPRINTF GLM_ENABLE_EXPERIMENTAL=1)
+target_compile_options (BeeCore PRIVATE -Wno-deprecated-declarations)
 
 target_include_directories (BeeCore PRIVATE ${BeeCoreIncludeDirectories} "${CMAKE_CURRENT_LIST_DIR}/fx/include")
 
