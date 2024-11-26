@@ -1,4 +1,6 @@
 
+This branch is based on release-v1.0.0-alpha.49 which is the latest version used in cocos creator.
+
 # FBX-glTF-conv
 
 This is a FBX to glTF file format converter.
