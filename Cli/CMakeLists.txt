@@ -4,6 +4,10 @@
     See https://stackoverflow.com/questions/41811674/cmake-add-test-executable
 ]]
 
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+endif()
+
 include ("${CMAKE_CURRENT_LIST_DIR}/../Core/CMakeLists.txt")
 
 # LIB
