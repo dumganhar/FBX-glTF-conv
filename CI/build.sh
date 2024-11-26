@@ -93,8 +93,9 @@ downloadFile() {
     done
 }
 
+fbxSdkHome=$(pwd)/fbxsdk/Home
+
 installFbxSdk() {
-    fbxSdkHome=$(pwd)/fbxsdk/Home
     mkdir -p fbxsdk
 
     if [ "$IsWindows" = true ]; then
@@ -195,6 +196,9 @@ runCMake() {
         defineVersion="-DFBX_GLTF_CONV_CLI_VERSION=$Version"
     fi
 
+    core_count=$(nproc)
+    echo "core count is $core_count"
+
     if [ "$IsMacOS" = true ]; then
         echo "fbx home is $fbxSdkHome"
         cmake -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" \
@@ -217,10 +221,10 @@ runCMake() {
                 -S. -B"${cmakeBuildDir}"
     fi
 
-    cmake --build $cmakeBuildDir --config $buildType
+    cmake --build $cmakeBuildDir --config $buildType -j${cpu_count}
 
     if [ "$IsWindows" = true ]; then
-        cmake --build $cmakeBuildDir --config $buildType --target install
+        cmake --build $cmakeBuildDir --config $buildType -j${cpu_count} --target install
     else
         cmake --install $cmakeBuildDir
     fi
