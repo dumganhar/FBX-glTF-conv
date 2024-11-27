@@ -149,8 +149,10 @@ jobs:
         id: download-artifact
         uses: robinraju/release-downloader@v1
         with:
-          releaseId:  ${{ needs.get_release_info_job.outputs.release_id }}
+          releaseId: ${{ needs.get_release_info_job.outputs.release_id }}
           fileName: '*'
+          tarBall: true
+          zipBall: true
           extract: true
           
       - name: Show downloaded files
