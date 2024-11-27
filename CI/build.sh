@@ -196,8 +196,12 @@ runCMake() {
         defineVersion="-DFBX_GLTF_CONV_CLI_VERSION=$Version"
     fi
 
-    core_count=$(nproc)
-    echo "core count is $core_count"
+    if [ "$IsMacOS" = true ]; then
+        cpu_core_count=$(sysctl -n hw.logicalcpu)
+    else
+        cpu_core_count=$(nproc)
+    fi
+    echo "cpu core count is $cpu_core_count"
 
     if [ "$IsMacOS" = true ]; then
         echo "fbx home is $fbxSdkHome"
@@ -222,10 +226,10 @@ runCMake() {
                 -S. -B"${cmakeBuildDir}"
     fi
 
-    cmake --build $cmakeBuildDir --config $buildType -j${cpu_count}
+    cmake --build $cmakeBuildDir --config $buildType -j${cpu_core_count}
 
     if [ "$IsWindows" = true ]; then
-        cmake --build $cmakeBuildDir --config $buildType -j${cpu_count} --target install
+        cmake --build $cmakeBuildDir --config $buildType -j${cpu_core_count} --target install
     else
         cmake --install $cmakeBuildDir
     fi
