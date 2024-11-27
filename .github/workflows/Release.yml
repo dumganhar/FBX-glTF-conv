@@ -11,7 +11,7 @@ jobs:
     name: Get Release Info
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.get_release_info.outputs.version }}
+      version: ${{ env.version }}
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - uses: actions/checkout@v4
@@ -27,17 +27,13 @@ jobs:
           echo "version=$version" >> $GITHUB_ENV
           echo "tag_name=$tagName" >> $GITHUB_ENV
           echo "release_name=$releaseName" >> $GITHUB_ENV
-        outputs:
-          version: ${{ env.version }}
-          tar_name: ${{ env.tar_name }}
-          release_name: ${{ env.release_name }}
       - id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{steps.get_release_info.outputs.tag_name}}
-          release_name: ${{steps.get_release_info.outputs.release_name}}
+          tag_name: ${{ env.tag_name }}
+          release_name: ${{ env.release_name }}
           draft: false
           prerelease: false
 
