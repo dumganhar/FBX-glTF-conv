@@ -271,6 +271,9 @@ build() {
     fi
     
     if [ -n "$ArtifactPath" ]; then
+        # Remove all .lib and .a files
+        find $cmakeInstallPrefix -type f \( -name '*.lib' -o -name '*.a' \) -delete
+        # Pack the installation directory
         tar -czvf $ArtifactPath -C $cmakeInstallPrefix .
     fi
 }
