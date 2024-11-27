@@ -69,7 +69,7 @@ jobs:
           ls -l out/install/Release/bin
           echo "ls -l out/build/Release/lib ..."
           ls -l out/install/Release/lib
-          lipo -info out/install/Release/bin/libfbxsdk.dylib
+          # lipo -info out/install/Release/bin/libfbxsdk.dylib
           # lipo -info out/install/Release/bin/libBeeCore.dylib
           # lipo -info out/install/Release/lib/libBeeCore.dylib
           lipo -info out/install/Release/bin/FBX-glTF-conv
