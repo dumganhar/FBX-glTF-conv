@@ -14,6 +14,7 @@ jobs:
         shell: bash
         run: |
           CI/build.sh
+          ls -l out/build/Release/Release
       
       - name: Run Core Test
         shell: pwsh
@@ -25,6 +26,12 @@ jobs:
         run: |
           out/build/Release/Release/FBX-glTF-conv-test.exe
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: windows-artifact
+          path: out/build/Release/Release
+
   test_on_mac:
     name: Test on macOS
     runs-on: macos-latest
@@ -34,7 +41,11 @@ jobs:
       - name: Build
         run: |
           CI/build.sh
+          echo "ls -l out/build/Release ..."
+          ls -l out/build/Release
+          echo "ls -l out/build/Release/bin ..."
           ls -l out/install/Release/bin
+          echo "ls -l out/build/Release/lib ..."
           ls -l out/install/Release/lib
           lipo -info out/install/Release/bin/libfbxsdk.dylib
           # lipo -info out/install/Release/bin/libBeeCore.dylib
@@ -58,4 +69,10 @@ jobs:
           ls out
           chmod 777 ./out/install/Release/bin/FBX-glTF-conv
           ./out/install/Release/bin/FBX-glTF-conv --help
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: macOS-artifact
+          path: out/build/Release
           
