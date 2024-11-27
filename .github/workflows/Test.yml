@@ -33,6 +33,10 @@ jobs:
         run: |
           CI/build.sh
           ls -l out/build/Release/Release
+
+      - name: Check executable file dependencies
+        run: |
+          & $env:dumpbinPath /dependents out/build/Release/Release/FBX-glTF-conv.exe
       
       - name: Run Core Test
         shell: pwsh
@@ -76,6 +80,10 @@ jobs:
           # otool -l out/install/Release/lib/libBeeCore.dylib | grep -A 5 LC_VERSION_MIN_MACOSX
           # echo "otool bin/FBX-glTF-conv ..."
           # otool -l out/install/Release/bin/FBX-glTF-conv | grep -A 5 LC_VERSION_MIN_MACOSX
+
+      - name: Check executable file dependencies
+        run: |
+          otool -L out/install/Release/bin/FBX-glTF-conv
 
       - name: Run Core Test
         run: |
