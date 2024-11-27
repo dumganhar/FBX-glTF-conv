@@ -22,6 +22,7 @@ jobs:
           if (-not (Test-Path $dumpbinPath)) {
             throw "dumpbin.exe not found"
           }
+          echo "dumpbinPath=$dumpbinPath"
           echo "dumpbinPath=$dumpbinPath" >> $env:GITHUB_ENV
 
       - uses: actions/checkout@v4
