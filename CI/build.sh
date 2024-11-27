@@ -166,6 +166,13 @@ installDependenciesForMacOS() {
     python3 ./CI/lipo-dir-merge.py ./vcpkg/installed/arm64-osx ./vcpkg/installed/x64-osx ./vcpkg/installed/uni-osx
 }
 
+installDependenciesForWindows() {
+    dependencies=('libxml2' 'zlib' 'fmt' 'nlohmann-json' 'glm' 'cppcodec' 'range-v3' 'cxxopts' 'doctest' 'utfcpp')
+    for libName in "${dependencies[@]}"; do
+        ./vcpkg/vcpkg install "$libName" --triplet x64-windows-static
+    done
+}
+
 installDependenciesForOthers() {
     dependencies=('libxml2' 'zlib' 'fmt' 'nlohmann-json' 'glm' 'cppcodec' 'range-v3' 'cxxopts' 'doctest' 'utfcpp')
     for libName in "${dependencies[@]}"; do
@@ -176,13 +183,15 @@ installDependenciesForOthers() {
 installDependencies() {
     if [ "$IsMacOS" = true ]; then
         installDependenciesForMacOS
+    elif [ "$IsWindows" = true ]; then
+        installDependenciesForWindows
     else
         installDependenciesForOthers
     fi
 }
 
 runCMake() {
-    buildType="$1"
+    buildType="${1}"
     echo "Build $buildType ..."
     cmakeBuildDir="out/build/$buildType"
 
@@ -215,21 +224,32 @@ runCMake() {
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             "${defineVersion}" \
             -S. -B"${cmakeBuildDir}"
+    elif [ "$IsWindows" = true ]; then
+        cmake -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_PREFIX_PATH="./vcpkg/installed/x64-windows-static" \
+            -DVCPKG_TARGET_TRIPLET="x64-windows-static" \
+            -DCMAKE_BUILD_TYPE="${buildType}" \
+            -DCMAKE_INSTALL_PREFIX="${cmakeInstallPrefix}/${buildType}" \
+            -DFbxSdkHome:STRING="${fbxSdkHome}" \
+            -DPOLYFILLS_STD_FILESYSTEM="${polyfillsStdFileSystem}" \
+            -DFBX_STATIC_RTL=1 \
+            -A x64 \
+            "${defineVersion}" \
+            -S. -B"${cmakeBuildDir}" 
     else
         cmake -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" \
-                -DCMAKE_BUILD_TYPE=$"{buildType}" \
-                -DCMAKE_INSTALL_PREFIX="${cmakeInstallPrefix}/${buildType}" \
-                -DFbxSdkHome:STRING="${fbxSdkHome}" \
-                -DPOLYFILLS_STD_FILESYSTEM="${polyfillsStdFileSystem}" \
-                -DFBX_STATIC_RTL=1 \
-                "${defineVersion}" \
-                -S. -B"${cmakeBuildDir}"
+            -DCMAKE_BUILD_TYPE="${buildType}" \
+            -DCMAKE_INSTALL_PREFIX="${cmakeInstallPrefix}/${buildType}" \
+            -DFbxSdkHome:STRING="${fbxSdkHome}" \
+            -DPOLYFILLS_STD_FILESYSTEM="${polyfillsStdFileSystem}" \
+            "${defineVersion}" \
+            -S. -B"${cmakeBuildDir}"
     fi
 
-    cmake --build $cmakeBuildDir --config $buildType -j${cpu_core_count}
+    cmake --build $cmakeBuildDir --config $buildType -j${cpu_core_count} --verbose
 
     if [ "$IsWindows" = true ]; then
-        cmake --build $cmakeBuildDir --config $buildType -j${cpu_core_count} --target install
+        cmake --build $cmakeBuildDir --config $buildType -j${cpu_core_count} --target install --verbose
     else
         cmake --install $cmakeBuildDir
     fi

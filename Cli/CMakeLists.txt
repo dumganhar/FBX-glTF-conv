@@ -4,15 +4,15 @@
     See https://stackoverflow.com/questions/41811674/cmake-add-test-executable
 ]]
 
-if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-endif()
-
 include ("${CMAKE_CURRENT_LIST_DIR}/../Core/CMakeLists.txt")
 
 # LIB
 
 add_library (FBX-glTF-conv-lib STATIC "${CMAKE_CURRENT_LIST_DIR}/ReadCliArgs.cpp")
+
+if(MSVC)
+   set_target_properties(FBX-glTF-conv-lib PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 set_target_properties (FBX-glTF-conv-lib PROPERTIES CXX_STANDARD 20)
 
@@ -49,8 +49,8 @@ target_link_libraries(BeeCore PRIVATE fmt::fmt fmt::fmt-header-only)
 add_executable (FBX-glTF-conv "${CMAKE_CURRENT_LIST_DIR}/Cli.cpp")
 
 set_target_properties (FBX-glTF-conv PROPERTIES CXX_STANDARD 20)
-if (MSVC)
-    set_property(TARGET FBX-glTF-conv PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+if(MSVC)
+    set_target_properties(FBX-glTF-conv PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 target_link_libraries(FBX-glTF-conv PRIVATE FBX-glTF-conv-lib)
@@ -72,6 +72,9 @@ install (TARGETS FBX-glTF-conv DESTINATION "bin")
 find_package(doctest REQUIRED)
 add_executable(FBX-glTF-conv-test "${CMAKE_CURRENT_LIST_DIR}/Test/ReadCliArgs.cpp")
 set_target_properties (FBX-glTF-conv-test PROPERTIES CXX_STANDARD 20)
+if(MSVC)
+    set_target_properties(FBX-glTF-conv-test PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 target_include_directories(FBX-glTF-conv-test PRIVATE ${DOCTEST_INCLUDE_DIR})
 target_include_directories (FBX-glTF-conv-test PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(FBX-glTF-conv-test PRIVATE doctest::doctest)

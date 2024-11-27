@@ -35,7 +35,11 @@ add_library (BeeCore STATIC ${BeeCoreSource})
 
 set_target_properties (BeeCore PROPERTIES CXX_STANDARD 20)
 
-target_compile_definitions (BeeCore PRIVATE BEE_EXPORT NOMINMAX HAVE_SNPRINTF GLM_ENABLE_EXPERIMENTAL=1)
+if(MSVC)
+    set_target_properties(BeeCore PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
+target_compile_definitions (BeeCore PRIVATE NOMINMAX HAVE_SNPRINTF GLM_ENABLE_EXPERIMENTAL=1)
 
 if (NOT WIN32)
     target_compile_options (BeeCore PRIVATE -Wno-deprecated-declarations)
@@ -145,8 +149,8 @@ file (GLOB_RECURSE BeeCoreTestSource
 find_package(doctest REQUIRED)
 add_executable(FBX-glTF-conv-core-test ${BeeCoreTestSource}) 
 set_target_properties (FBX-glTF-conv-core-test PROPERTIES CXX_STANDARD 20)
-if (MSVC)
-    set_property(TARGET FBX-glTF-conv-core-test PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+if(MSVC)
+    set_target_properties(FBX-glTF-conv-core-test PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 target_include_directories(FBX-glTF-conv-core-test PRIVATE ${DOCTEST_INCLUDE_DIR}) 
