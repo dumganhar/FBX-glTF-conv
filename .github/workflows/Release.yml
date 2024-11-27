@@ -58,7 +58,7 @@ jobs:
       - id: get_this_release_info
         shell: bash
         run: |
-          artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-win32.tgz"
+          artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-win32.tar.gz"
           echo "artifactPath=$artifactPath" >> $GITHUB_ENV
       
       - id: build
@@ -91,7 +91,7 @@ jobs:
       - id: get_this_release_info
         run: |
           osName=$(uname | tr '[:upper:]' '[:lower:]')
-          artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-$osName.tgz"
+          artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-$osName.tar.gz"
           echo "artifactPath=$artifactPath" >> $GITHUB_ENV
       
       - id: build
@@ -121,7 +121,7 @@ jobs:
       
       - id: get_this_release_info
         run: |
-          artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-types.tgz"
+          artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-types.tar.gz"
           echo "artifactPath=$artifactPath" >> $GITHUB_ENV
       
       - id: build
