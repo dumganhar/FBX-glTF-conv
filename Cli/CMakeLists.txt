@@ -49,6 +49,9 @@ target_link_libraries(BeeCore PRIVATE fmt::fmt fmt::fmt-header-only)
 add_executable (FBX-glTF-conv "${CMAKE_CURRENT_LIST_DIR}/Cli.cpp")
 
 set_target_properties (FBX-glTF-conv PROPERTIES CXX_STANDARD 20)
+if (MSVC)
+    set_property(TARGET FBX-glTF-conv PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 target_link_libraries(FBX-glTF-conv PRIVATE FBX-glTF-conv-lib)
 
@@ -61,11 +64,6 @@ if (APPLE)
 elseif (UNIX)
     set_target_properties (FBX-glTF-conv PROPERTIES INSTALL_RPATH "$ORIGIN")
 endif ()
-
-add_custom_command(TARGET FBX-glTF-conv POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${FbxSdkDynLibraries}
-        $<TARGET_FILE_DIR:FBX-glTF-conv>)
 
 install (TARGETS FBX-glTF-conv DESTINATION "bin")
 
