@@ -14,6 +14,7 @@ jobs:
       version: ${{ env.version }}
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
       tag_name: ${{ env.tag_name }}
+      release_id: ${{ steps.create_release.outputs.id }}
     steps:
       - uses: actions/checkout@v4
       - id: get_release_info
@@ -136,17 +137,17 @@ jobs:
   publish_to_npm_job:
     name: Publish to NPM
     runs-on: ubuntu-latest
-    needs: [release_windows_job, release_darwin_job, release_types_job]
+    needs: [get_release_info_job release_windows_job, release_darwin_job, release_types_job]
     steps:
       - name: Download artifact
         id: download-artifact
         uses: dawidd6/action-download-artifact@v6
         with:
-          run_id: ${{ github.event.workflow_run.id }}
+          run_id: ${{ needs.get_release_info_job.outputs.release_id }}
           
       - name: Show downloaded files
         run: ls -la
-      
+
       # - name: Copy files to publish directory
       #   run: |
       #     ls -l publish/
