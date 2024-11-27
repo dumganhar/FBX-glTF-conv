@@ -137,7 +137,7 @@ jobs:
   publish_to_npm_job:
     name: Publish to NPM
     runs-on: ubuntu-latest
-    needs: [get_release_info_job release_windows_job, release_darwin_job, release_types_job]
+    needs: [get_release_info_job, release_windows_job, release_darwin_job, release_types_job]
     steps:
       - name: Download artifact
         id: download-artifact
