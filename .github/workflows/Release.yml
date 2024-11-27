@@ -144,19 +144,19 @@ jobs:
           asset_name: ${{ steps.get_this_release_info.outputs.artifact_path }}
           asset_content_type: application/zip
 
-    publish_to_npm_job:
-      name: Publish to NPM
-      runs-on: ubuntu-latest
-      needs: [release_windows_job, release_darwin_job, release_types_job]
-      steps:
-        - name: Download artifact
-          id: download-artifact
-          uses: dawidd6/action-download-artifact@v6
-          with:
-            run_id: ${{ github.event.workflow_run.id }}
-            
-        - name: Show downloaded files
-          run: ls -la
+  publish_to_npm_job:
+    name: Publish to NPM
+    runs-on: ubuntu-latest
+    needs: [release_windows_job, release_darwin_job, release_types_job]
+    steps:
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          
+      - name: Show downloaded files
+        run: ls -la
       
       # - name: Copy files to publish directory
       #   run: |
