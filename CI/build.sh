@@ -202,9 +202,8 @@ runCMake() {
         cpu_core_count=$(nproc)
     fi
     echo "cpu core count is $cpu_core_count"
-
+    echo "fbx home is $fbxSdkHome"
     if [ "$IsMacOS" = true ]; then
-        echo "fbx home is $fbxSdkHome"
         cmake -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_PREFIX_PATH="./vcpkg/installed/uni-osx" \
             -DVCPKG_TARGET_TRIPLET="uni-osx" \
@@ -222,6 +221,7 @@ runCMake() {
                 -DCMAKE_INSTALL_PREFIX="${cmakeInstallPrefix}/${buildType}" \
                 -DFbxSdkHome:STRING="${fbxSdkHome}" \
                 -DPOLYFILLS_STD_FILESYSTEM="${polyfillsStdFileSystem}" \
+                -DFBX_STATIC_RTL=1 \
                 "${defineVersion}" \
                 -S. -B"${cmakeBuildDir}"
     fi
