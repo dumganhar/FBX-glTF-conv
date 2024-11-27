@@ -7,6 +7,23 @@ jobs:
     name: Test on Windows
     runs-on: windows-latest
     steps:
+
+      - name: Find Visual Studio Installation Path with vswhere
+        id: vswhere
+        run: |
+          $vsPath = &vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          echo "vsPath=$vsPath" >> $env:GITHUB_ENV
+
+      - name: Find dumpbin.exe Path
+        id: find-dumpbin
+        run: |
+          $dumpbinPath = "$env:vsPath\VC\Tools\MSVC"
+          $dumpbinPath = Get-ChildItem -Path $dumpbinPath -Directory | Sort-Object Name -Descending | Select-Object -First 1 | ForEach-Object { "$($_.FullName)\bin\Hostx64\x64\dumpbin.exe" }
+          if (-not (Test-Path $dumpbinPath)) {
+            throw "dumpbin.exe not found"
+          }
+          echo "dumpbinPath=$dumpbinPath" >> $env:GITHUB_ENV
+
       - uses: actions/checkout@v4
         name: Checkout
   
