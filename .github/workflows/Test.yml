@@ -5,7 +5,7 @@ on: [pull_request, push]
 jobs:
   test:
     name: Test on Windows
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
 
       - name: Find Visual Studio Installation Path with vswhere
