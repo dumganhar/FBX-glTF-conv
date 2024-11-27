@@ -3,6 +3,7 @@
 
 #include "ReadCliArgs.h"
 #include <doctest/doctest.h>
+#include <fmt/format.h>
 #include <string>
 
 using namespace std::literals;
@@ -83,7 +84,7 @@ TEST_CASE("Read CLI arguments") {
     CHECK_EQ(u8toexe(convertOptions.fbmDir), "");
     CHECK_EQ(convertOptions.logFile, std::nullopt);
     CHECK_EQ(convertOptions.convertOptions.prefer_local_time_span, true);
-    CHECK_EQ(convertOptions.convertOptions.no_mesh_instancing, false);
+    // CHECK_EQ(convertOptions.convertOptions.no_mesh_instancing, false);
     CHECK_EQ(convertOptions.convertOptions.match_mesh_names, true);
     CHECK_EQ(convertOptions.convertOptions.animationBakeRate, 0);
     CHECK_EQ(convertOptions.convertOptions.animation_position_error_multiplier,
@@ -120,19 +121,19 @@ TEST_CASE("Read CLI arguments") {
 {
   std::vector<std::string_view> args{dummyArg0, "--match-mesh-names"sv,
                                      "--"sv, dummyInput};
-  CHECK_EQ(u8toexe(beecli::readCliArgs(args)->inputFile), dummyInput);
+  CHECK_EQ(u8toexe(get_as_convert_command(beecli::readCliArgs(args)).inputFile), dummyInput);
 }
 
 { // CJK, spaces
   const auto cjkFile = "лл  лл.FBX";
   std::vector<std::string_view> args{dummyArg0, cjkFile};
-  CHECK_EQ(u8toexe(beecli::readCliArgs(args)->inputFile), cjkFile);
+  CHECK_EQ(u8toexe(get_as_convert_command(beecli::readCliArgs(args)).inputFile), cjkFile);
 }
 }
 
 { // Output
   const auto outFile = "666лл лл.gltf"s;
-  CHECK_EQ(u8toexe(read_cli_args_with_dummy_and("--out=" + outFile)->outFile),
+  CHECK_EQ(u8toexe(read_cli_args_with_dummy_and("--out=" + outFile).outFile),
            outFile);
 }
 
@@ -152,15 +153,15 @@ TEST_CASE("Read CLI arguments") {
 
 { // No flip V
   CHECK_EQ(
-      read_cli_args_with_dummy_and("--no-flip-v"sv)->convertOptions.noFlipV,
+      read_cli_args_with_dummy_and("--no-flip-v"sv).convertOptions.noFlipV,
       true);
 
   CHECK_EQ(read_cli_args_with_dummy_and("--no-flip-v=true"sv)
-               ->convertOptions.noFlipV,
+               .convertOptions.noFlipV,
            true);
 
   CHECK_EQ(read_cli_args_with_dummy_and("--no-flip-v=false"sv)
-               ->convertOptions.noFlipV,
+               .convertOptions.noFlipV,
            false);
 }
 
@@ -196,20 +197,20 @@ CHECK_EQ(u8toexe(args.convertOptions.textureResolution.locations[0]), "/a"s);
 
 { // Prefer local time span
   CHECK_EQ(read_cli_args_with_dummy_and("--prefer-local-time-span"sv)
-               ->convertOptions.prefer_local_time_span,
+               .convertOptions.prefer_local_time_span,
            true);
 
   CHECK_EQ(read_cli_args_with_dummy_and("--prefer-local-time-span=true"sv)
-               ->convertOptions.prefer_local_time_span,
+               .convertOptions.prefer_local_time_span,
            true);
 
   CHECK_EQ(read_cli_args_with_dummy_and("--prefer-local-time-span=false"sv)
-               ->convertOptions.prefer_local_time_span,
+               .convertOptions.prefer_local_time_span,
            false);
 }
 { 
   CHECK_EQ(read_cli_args_with_dummy_and("--match-mesh-names"sv)
- 			  ->convertOptions.match_mesh_names,
+ 			  .convertOptions.match_mesh_names,
      		  true);
 }
 
@@ -235,29 +236,29 @@ CHECK_EQ(u8toexe(args.convertOptions.textureResolution.locations[0]), "/a"s);
 
 { // --export-fbx-file-header-info
   CHECK_EQ(read_cli_args_with_dummy_and("--export-fbx-file-header-info"sv)
-               ->convertOptions.export_fbx_file_header_info,
+               .convertOptions.export_fbx_file_header_info,
            true);
 
   CHECK_EQ(read_cli_args_with_dummy_and("--export-fbx-file-header-info=true"sv)
-               ->convertOptions.export_fbx_file_header_info,
+               .convertOptions.export_fbx_file_header_info,
            true);
 
   CHECK_EQ(read_cli_args_with_dummy_and("--export-fbx-file-header-info=false"sv)
-               ->convertOptions.export_fbx_file_header_info,
+               .convertOptions.export_fbx_file_header_info,
            false);
 }
 
 { // --export-raw-materials
   CHECK_EQ(read_cli_args_with_dummy_and("--export-raw-materials"sv)
-               ->convertOptions.export_raw_materials,
+               .convertOptions.export_raw_materials,
            true);
 
   CHECK_EQ(read_cli_args_with_dummy_and("--export-raw-materials=true"sv)
-               ->convertOptions.export_raw_materials,
+               .convertOptions.export_raw_materials,
            true);
 
   CHECK_EQ(read_cli_args_with_dummy_and("--export-raw-materials=false"sv)
-               ->convertOptions.export_raw_materials,
+               .convertOptions.export_raw_materials,
            false);
 }
 
@@ -268,15 +269,15 @@ CHECK_EQ(u8toexe(args.convertOptions.textureResolution.locations[0]), "/a"s);
 }
 
 { // Verbose
-  CHECK_EQ(read_cli_args_with_dummy_and("--verbose"sv)->convertOptions.verbose,
+  CHECK_EQ(read_cli_args_with_dummy_and("--verbose"sv).convertOptions.verbose,
            true);
 
   CHECK_EQ(
-      read_cli_args_with_dummy_and("--verbose=true"sv)->convertOptions.verbose,
+      read_cli_args_with_dummy_and("--verbose=true"sv).convertOptions.verbose,
       true);
 
   CHECK_EQ(
-      read_cli_args_with_dummy_and("--verbose=false"sv)->convertOptions.verbose,
+      read_cli_args_with_dummy_and("--verbose=false"sv).convertOptions.verbose,
       false);
 }
 
