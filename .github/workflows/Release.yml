@@ -150,6 +150,8 @@ jobs:
         uses: robinraju/release-downloader@v1
         with:
           releaseId:  ${{ needs.get_release_info_job.outputs.release_id }}
+          fileName: '*'
+          extract: true
           
       - name: Show downloaded files
         run: ls -la
