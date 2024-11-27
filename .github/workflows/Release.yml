@@ -46,19 +46,17 @@ jobs:
     needs: get_release_info_job
     steps:
       - name: Print Debug Info
-        shell: pwsh
+        shell: bash
         run: |
-          Write-Host @"
-          Version: ${{ needs.get_release_info_job.outputs.version }}
-          Release Upload URL: ${{ needs.get_release_info_job.outputs.release_upload_url }}
-          "@
+          echo "Version: ${{ needs.get_release_info_job.outputs.version }}"
+          echo "Release Upload URL: ${{ needs.get_release_info_job.outputs.release_upload_url }}"
+
       - uses: actions/checkout@v4
+
       - id: get_this_release_info
-        shell: pwsh
+        shell: bash
         run: |
-          #Requires -Version "6.1"
-          $osName = if ($IsWindows) { "win32" } elseif ($IsLinux) { "ubuntu" } else { "darwin" }
-          $artifactPath = "FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-$osName.tgz"
+          artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-win32.tgz"
           echo "artifact_path=$artifactPath" >> $GITHUB_ENV
       
       - id: build
