@@ -106,6 +106,13 @@ if (APPLE)
     find_library (CF_FRAMEWORK CoreFoundation)
     message("CoreFoundation Framework: ${CF_FRAMEWORK}")
     target_link_libraries(BeeCore PRIVATE ${CF_FRAMEWORK})
+
+    find_library(ICONV_LIBRARY iconv)
+    if (ICONV_LIBRARY)
+        target_link_libraries(BeeCore PRIVATE ${ICONV_LIBRARY})
+    else()
+        message(FATAL_ERROR "iconv library not found")
+    endif()
 endif()
 
 target_include_directories (BeeCore PRIVATE ${FbxSdkIncludeDirectories})

@@ -157,7 +157,7 @@ installFbxSdk() {
 installDependenciesForMacOS() {
     # Download both x86-64 and arm-64 libs and merge them into a uniform binary.
     # https://www.f-ax.de/dev/2022/11/09/how-to-use-vcpkg-with-universal-binaries-on-macos/
-    dependencies=('libxml2' 'zlib' 'fmt' 'nlohmann-json' 'glm' 'cppcodec' 'range-v3' 'cxxopts' 'doctest' 'utfcpp')
+    dependencies=('fmt' 'nlohmann-json' 'glm' 'cppcodec' 'range-v3' 'cxxopts' 'doctest' 'utfcpp')
     for libName in "${dependencies[@]}"; do
         ./vcpkg/vcpkg install --triplet=x64-osx "$libName"
         ./vcpkg/vcpkg install --triplet=arm64-osx "$libName"
