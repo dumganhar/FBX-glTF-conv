@@ -57,11 +57,11 @@ jobs:
         shell: bash
         run: |
           artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-win32.tgz"
-          echo "artifact_path=$artifactPath" >> $GITHUB_ENV
+          echo "artifactPath=$artifactPath" >> $GITHUB_ENV
       
       - id: build
         name: Build
-        run: CI/build.sh -Version "${{ needs.get_release_info_job.outputs.version }}" -ArtifactPath "${{ env.artifact_path }}"
+        run: CI/build.sh -Version "${{ needs.get_release_info_job.outputs.version }}" -ArtifactPath "${{ env.artifactPath }}"
         shell: bash
       
       - name: Upload to Release
@@ -89,11 +89,11 @@ jobs:
         run: |
           osName=$(uname | tr '[:upper:]' '[:lower:]')
           artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-$osName.tgz"
-          echo "artifact_path=$artifactPath" >> $GITHUB_ENV
+          echo "artifactPath=$artifactPath" >> $GITHUB_ENV
       
       - id: build
         name: Build
-        run: CI/build.sh -Version "${{ needs.get_release_info_job.outputs.version }}" -ArtifactPath "${{ env.artifact_path }}"
+        run: CI/build.sh -Version "${{ needs.get_release_info_job.outputs.version }}" -ArtifactPath "${{ env.artifactPath }}"
       
       - name: Upload to Release
         uses: svenstaro/upload-release-action@2.9.0
@@ -118,11 +118,11 @@ jobs:
       - id: get_this_release_info
         run: |
           artifactPath="FBX-glTF-conv-${{ needs.get_release_info_job.outputs.version }}-types.tgz"
-          echo "artifact_path=$artifactPath" >> $GITHUB_ENV
+          echo "artifactPath=$artifactPath" >> $GITHUB_ENV
       
       - id: build
         name: Build
-        run: tar -czvf "${{ env.artifact_path }}" -C types . 
+        run: tar -czvf "${{ env.artifactPath }}" -C types . 
         shell: bash
       
       - name: Upload to Release
