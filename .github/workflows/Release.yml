@@ -187,6 +187,6 @@ jobs:
 
       - uses: JS-DevTools/npm-publish@v3
         with:
-          token: ${{ secrets.NPM_PUBLISH }}
+          token: ${{ secrets.NPM_PUBLISH_FOR_PUBLIC_REPO }}
           registry: "https://registry.npmjs.org"
           package: publish
