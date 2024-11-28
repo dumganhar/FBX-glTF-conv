@@ -170,7 +170,7 @@ jobs:
           ls -l publish/
           cp Release/bin/FBX-glTF-conv publish/bin/darwin
           cp Release/bin/FBX-glTF-conv.exe publish/bin/win32
-          cp ../types/FBX-glTF-conv-extras.d.ts publish/types
+          cp types/FBX-glTF-conv-extras.d.ts publish/types
       
       - name: npm ci
         run: |
