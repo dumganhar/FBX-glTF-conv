@@ -221,7 +221,7 @@ runCMake() {
             -DCMAKE_INSTALL_PREFIX="${cmakeInstallPrefix}/${buildType}" \
             -DFbxSdkHome:STRING="${fbxSdkHome}" \
             -DPOLYFILLS_STD_FILESYSTEM="${polyfillsStdFileSystem}" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
             "${defineVersion}" \
             -S. -B"${cmakeBuildDir}"
     elif [ "$IsWindows" = true ]; then
@@ -280,7 +280,7 @@ build() {
 
 parseArgs "$@"
 printEnvironments
-installFbxSdk
-installVcpkg
+# installFbxSdk
+# installVcpkg
 installDependencies
 build
