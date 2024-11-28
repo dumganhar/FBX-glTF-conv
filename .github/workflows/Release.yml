@@ -161,12 +161,7 @@ jobs:
         run: |
           ls -la
           tree Release
-
-      - name: ts compile
-        run: |
-          cd publish
-          tsc
-          
+         
       - name: Copy files to publish directory
         run: |
           mkdir -p publish/bin/darwin
@@ -175,11 +170,22 @@ jobs:
           ls -l publish/
           cp Release/bin/FBX-glTF-conv publish/bin/darwin
           cp Release/bin/FBX-glTF-conv.exe publish/bin/win32
-          cp FBX-glTF-conv-extras.d.ts Release/ publish/types
+          cp ../types/FBX-glTF-conv-extras.d.ts publish/types
+      
+      - name: npm ci
+        run: |
+          cd publish
+          npm ci
+      
+      - name: Modify package.json and VERSION
+        run: |
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ needs.get_release_info_job.outputs.version }}\"/g" package.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ needs.get_release_info_job.outputs.version }}\"/g" package-lock.json
+          echo "${{ needs.get_release_info_job.outputs.version }}" > VERSION
 
-      # - uses: JS-DevTools/npm-publish@4b07b26a2f6e0a51846e1870223e545bae91c552
-      #   if: github.event_name == 'release'
-      #   with:
-      #     token: ${{ secrets.NPM_PUBLISH }}
-      #     registry: "https://registry.npmjs.org"
-      #     package: publish
+      - uses: JS-DevTools/npm-publish@4b07b26a2f6e0a51846e1870223e545bae91c552
+        if: github.event_name == 'release'
+        with:
+          token: ${{ secrets.NPM_PUBLISH }}
+          registry: "https://registry.npmjs.org"
+          package: publish
