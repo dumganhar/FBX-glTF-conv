@@ -185,7 +185,6 @@ jobs:
           echo "${{ needs.get_release_info_job.outputs.version }}" > VERSION
 
       - uses: JS-DevTools/npm-publish@4b07b26a2f6e0a51846e1870223e545bae91c552
-        if: github.event_name == 'release'
         with:
           token: ${{ secrets.NPM_PUBLISH }}
           registry: "https://registry.npmjs.org"
