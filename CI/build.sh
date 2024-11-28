@@ -280,7 +280,7 @@ build() {
 
 parseArgs "$@"
 printEnvironments
-# installFbxSdk
-# installVcpkg
+installFbxSdk
+installVcpkg
 installDependencies
 build
