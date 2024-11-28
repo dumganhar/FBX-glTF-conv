@@ -177,6 +177,7 @@ jobs:
           cd publish
           npm ci
           npm run build
+          tree .
       
       - name: Modify package.json and VERSION
         run: |
