@@ -172,10 +172,11 @@ jobs:
           cp Release/bin/FBX-glTF-conv.exe publish/bin/win32
           cp types/FBX-glTF-conv-extras.d.ts publish/types
       
-      - name: npm ci
+      - name: npm ci & npm run build
         run: |
           cd publish
           npm ci
+          npm run build
       
       - name: Modify package.json and VERSION
         run: |
@@ -184,7 +185,7 @@ jobs:
           sed -i "s/\"version\": \".*\"/\"version\": \"${{ needs.get_release_info_job.outputs.version }}\"/g" package-lock.json
           echo "${{ needs.get_release_info_job.outputs.version }}" > VERSION
 
-      - uses: JS-DevTools/npm-publish@4b07b26a2f6e0a51846e1870223e545bae91c552
+      - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_PUBLISH }}
           registry: "https://registry.npmjs.org"
