@@ -6,8 +6,9 @@
 #include <type_traits>
 #include <vector>
 #ifdef _WIN32
-#include <Windows.h>
+#  include <Windows.h>
 #endif
+#include "./Version.h"
 #include <algorithm>
 #include <bee/polyfills/filesystem.h>
 #include <fmt/format.h>
@@ -67,7 +68,8 @@ getCommandLineArgsU8(int argc_, const char *argv_[]) {
 #endif
 }
 
-template <auto MemberPtr> struct ConvertOptionBindingTrait {};
+template <auto MemberPtr>
+struct ConvertOptionBindingTrait {};
 
 template <>
 struct ConvertOptionBindingTrait<
@@ -85,7 +87,8 @@ struct ConvertOptionBindingTrait<
   constexpr static auto default_value = "1e-5";
 };
 
-template <auto memberPtr> struct convert_option_binding_helper {};
+template <auto memberPtr>
+struct convert_option_binding_helper {};
 
 template <typename OptionType, OptionType bee::ConvertOptions::*optionMemberPtr>
 struct convert_option_binding_helper<optionMemberPtr> {
@@ -125,7 +128,7 @@ fetch_convert_option(const cxxopts::ParseResult &cxxopts_parse_result_,
       cxxopts_parse_result_, convert_options_);
 }
 
-std::optional<CliArgs> readCliArgs(std::span<std::string_view> args_) {
+std::optional<ParsedCommand> readCliArgs(std::span<std::string_view> args_) {
   std::string inputFile;
   std::string outFile;
   std::string fbmDir;
@@ -139,12 +142,18 @@ std::optional<CliArgs> readCliArgs(std::span<std::string_view> args_) {
   CliArgs cliArgs;
 
   cxxopts::Options options{"FBX-glTF-conv",
-                           "This is a FBX to glTF file format converter."};
+                           "This is a FBX to glTF file format converter. \n" +
+                               fmt::format("Version: {}", version_string.empty() ? "UNKNOWN" : version_string)};
+  options.positional_help("<path-to-FBX-file>");
 
   const auto add_cxx_option = [&options, &cliArgs ]<auto memberPtr>() {
     convert_option_binding_helper<memberPtr>::add_cxx_option(
         options, cliArgs.convertOptions);
   };
+
+  options.add_options()("h,help", "Print this help message.");
+
+  options.add_options()("v,version", "Print version string.");
 
   options.add_options()("input-file", "Input file",
                         cxxopts::value<std::string>());
@@ -249,8 +258,11 @@ std::optional<CliArgs> readCliArgs(std::span<std::string_view> args_) {
     const auto cliParseResult = options.parse(argc, argv);
 
     if (cliParseResult.count("help")) {
-      std::cout << options.help() << std::endl;
-      return {};
+      return HelpCommand{options.help()};
+    }
+
+    if (cliParseResult.count("version")) {
+      return VersionCommand{};
     }
 
     const auto fetch_convert_option =
@@ -294,9 +306,9 @@ std::optional<CliArgs> readCliArgs(std::span<std::string_view> args_) {
           cliParseResult["prefer-local-time-span"].as<bool>();
     }
     if (cliParseResult.count("match-mesh-names")) {
-	  cliArgs.convertOptions.match_mesh_names =
-		  cliParseResult["match-mesh-names"].as<bool>();
-	}
+      cliArgs.convertOptions.match_mesh_names =
+          cliParseResult["match-mesh-names"].as<bool>();
+    }
     if (cliParseResult.count("animation-bake-rate")) {
       cliArgs.convertOptions.animationBakeRate =
           cliParseResult["animation-bake-rate"]

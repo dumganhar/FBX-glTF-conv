@@ -127,7 +127,7 @@ public:
           const auto lenT = nextTime - previousTime;
           // If the time [prev, cur, next] is almost zero.
           if (isApproximatelyEqual(lenT, 0.0, epsilon_)) {
-            // We can omit cur if prev¡Öcur¡Önext
+            // We can omit cur if prevï¿½ï¿½curï¿½ï¿½next
             if (TrackValueTrait<Ty>::isEqualApproximately(previousValue, value,
                                                           epsilon_) &&
                 TrackValueTrait<Ty>::isEqualApproximately(value, nextValue,
@@ -139,7 +139,7 @@ public:
           }
 
           const auto t = (time - previousTime) / lenT;
-          // If cur¡Ölerp(prev, next, t), we can omit it.
+          // If curï¿½ï¿½lerp(prev, next, t), we can omit it.
           if (const auto deducedMiddle =
                   TrackValueTrait<Ty>::interpolate(previousValue, nextValue, t);
               TrackValueTrait<Ty>::isEqualApproximately(deducedMiddle, value,

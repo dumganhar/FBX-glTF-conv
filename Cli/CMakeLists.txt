@@ -8,7 +8,11 @@ include ("${CMAKE_CURRENT_LIST_DIR}/../Core/CMakeLists.txt")
 
 # LIB
 
-add_library (FBX-glTF-conv-lib STATIC "${CMAKE_CURRENT_LIST_DIR}/ReadCliArgs.cpp")
+add_library (FBX-glTF-conv-lib STATIC "${CMAKE_CURRENT_LIST_DIR}/ReadCliArgs.cpp" "${CMAKE_CURRENT_LIST_DIR}/Version.cpp")
+
+if(MSVC)
+   set_target_properties(FBX-glTF-conv-lib PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 set_target_properties (FBX-glTF-conv-lib PROPERTIES CXX_STANDARD 20)
 
@@ -22,10 +26,21 @@ if (POLYFILLS_STD_FILESYSTEM)
     target_compile_definitions (FBX-glTF-conv-lib PUBLIC BEE_POLYFILLS_STD_FILESYSTEM)
 endif ()
 
+if(MSVC)
+    target_compile_options(FBX-glTF-conv-lib PRIVATE /utf-8)
+endif()
+
 target_link_libraries (FBX-glTF-conv-lib PUBLIC BeeCore)
 
 find_package(cxxopts CONFIG REQUIRED)
 target_link_libraries(FBX-glTF-conv-lib PUBLIC cxxopts::cxxopts)
+
+target_link_libraries(FBX-glTF-conv-lib PRIVATE fmt::fmt-header-only)
+
+if (FBX_GLTF_CONV_CLI_VERSION)
+    message (STATUS "Tagged version: ${FBX_GLTF_CONV_CLI_VERSION}")
+    target_compile_definitions (FBX-glTF-conv-lib PRIVATE FBX_GLTF_CONV_CLI_VERSION=${FBX_GLTF_CONV_CLI_VERSION})
+endif ()
 
 #[[
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -41,8 +56,12 @@ target_link_libraries(BeeCore PRIVATE fmt::fmt fmt::fmt-header-only)
 add_executable (FBX-glTF-conv "${CMAKE_CURRENT_LIST_DIR}/Cli.cpp")
 
 set_target_properties (FBX-glTF-conv PROPERTIES CXX_STANDARD 20)
+if(MSVC)
+    set_target_properties(FBX-glTF-conv PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 target_link_libraries(FBX-glTF-conv PRIVATE FBX-glTF-conv-lib)
+target_link_libraries(FBX-glTF-conv PRIVATE fmt::fmt-header-only)
 
 # Set @rpath so executable can find .dylib/.so
 # See https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling#recommendations
@@ -54,11 +73,6 @@ elseif (UNIX)
     set_target_properties (FBX-glTF-conv PROPERTIES INSTALL_RPATH "$ORIGIN")
 endif ()
 
-add_custom_command(TARGET FBX-glTF-conv POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${FbxSdkDynLibraries}
-        $<TARGET_FILE_DIR:FBX-glTF-conv>)
-
 install (TARGETS FBX-glTF-conv DESTINATION "bin")
 
 # ------------------
@@ -66,7 +80,11 @@ install (TARGETS FBX-glTF-conv DESTINATION "bin")
 find_package(doctest REQUIRED)
 add_executable(FBX-glTF-conv-test "${CMAKE_CURRENT_LIST_DIR}/Test/ReadCliArgs.cpp")
 set_target_properties (FBX-glTF-conv-test PROPERTIES CXX_STANDARD 20)
+if(MSVC)
+    set_target_properties(FBX-glTF-conv-test PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 target_include_directories(FBX-glTF-conv-test PRIVATE ${DOCTEST_INCLUDE_DIR})
 target_include_directories (FBX-glTF-conv-test PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(FBX-glTF-conv-test PRIVATE doctest::doctest)
 target_link_libraries (FBX-glTF-conv-test PRIVATE FBX-glTF-conv-lib)
+target_link_libraries(FBX-glTF-conv-test PRIVATE fmt::fmt-header-only)

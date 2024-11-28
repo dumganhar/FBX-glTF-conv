@@ -1,0 +1,123 @@
+name: Pull Request Test
+
+on: [pull_request, push]
+
+jobs:
+  test:
+    name: Test on Windows
+    runs-on: windows-2019
+    steps:
+
+      - name: Find Visual Studio Installation Path with vswhere
+        id: vswhere
+        run: |
+          $vsPath = &vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          echo "vsPath=$vsPath" >> $env:GITHUB_ENV
+
+      - name: Find dumpbin.exe Path
+        id: find-dumpbin
+        run: |
+          $dumpbinPath = "$env:vsPath\VC\Tools\MSVC"
+          $dumpbinPath = Get-ChildItem -Path $dumpbinPath -Directory | Sort-Object Name -Descending | Select-Object -First 1 | ForEach-Object { "$($_.FullName)\bin\Hostx64\x64\dumpbin.exe" }
+          if (-not (Test-Path $dumpbinPath)) {
+            throw "dumpbin.exe not found"
+          }
+          echo "dumpbinPath=$dumpbinPath"
+          echo "dumpbinPath=$dumpbinPath" >> $env:GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        name: Checkout
+  
+      - name: Build
+        shell: bash
+        run: |
+          CI/build.sh
+          ls -l out/build/Release/Release
+
+      - name: npm ci & npm run build
+        shell: pwsh
+        run: |
+          cd publish
+          npm ci
+          npm run build
+          Get-ChildItem -Recurse | Format-List
+
+      - name: Check executable file dependencies
+        run: |
+          & $env:dumpbinPath /dependents out/build/Release/Release/FBX-glTF-conv.exe
+      
+      - name: Run Core Test
+        shell: pwsh
+        run: |
+          out/build/Release/Release/FBX-glTF-conv-core-test.exe
+
+      - name: Run CLI Test
+        shell: pwsh
+        run: |
+          out/build/Release/Release/FBX-glTF-conv-test.exe
+
+      - name: Remove unused .lib files in install directory
+        shell: pwsh
+        run: |
+          Remove-Item -Path out/install/Release/lib/*.lib
+          Remove-Item -Path out/install/Release/bin/*.lib
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: windows-artifact
+          path: out/install/Release
+
+  test_on_mac:
+    name: Test on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          CI/build.sh
+          echo "ls -l out/build/Release ..."
+          ls -l out/build/Release
+          echo "ls -l out/build/Release/bin ..."
+          ls -l out/install/Release/bin
+          echo "ls -l out/build/Release/lib ..."
+          ls -l out/install/Release/lib
+          lipo -info out/install/Release/bin/FBX-glTF-conv
+
+          otool -l out/install/Release/bin/FBX-glTF-conv | grep -E -A8 '(LC_VERSION_MIN_MACOSX|LC_BUILD_VERSION)'
+
+      - name: npm ci & npm run build
+        run: |
+          cd publish
+          npm ci
+          npm run build
+          brew install tree
+          tree .
+
+      - name: Check executable file dependencies
+        run: |
+          otool -L out/install/Release/bin/FBX-glTF-conv
+
+      - name: Run Core Test
+        run: |
+          out/build/Release/FBX-glTF-conv-core-test
+
+      - name: Run CLI Tests
+        continue-on-error: true
+        run: |
+          ls out
+          chmod 777 ./out/install/Release/bin/FBX-glTF-conv
+          ./out/install/Release/bin/FBX-glTF-conv --help
+
+      - name: Remove unused .a files in install directory
+        run: |
+          rm -rf out/install/Release/lib/*.a
+          rm -rf out/install/Release/bin/*.a
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: macOS-artifact
+          path: out/install/Release
+          
