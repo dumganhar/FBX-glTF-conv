@@ -92,6 +92,7 @@ jobs:
           cd publish
           npm ci
           npm run build
+          brew install tree
           tree .
 
       - name: Check executable file dependencies
